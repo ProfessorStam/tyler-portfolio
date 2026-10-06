@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Tyler Stambaugh">
+<meta property="og:description" content="I learn the rules of your game. Then I build you a better one.">
+<meta name="theme-color" content="#0e0f13">
+<title>Tyler Stambaugh</title>
+<meta name="description" content="Tyler Stambaugh: founder, product leader, and builder. I learn the rules of your game. Then I build you a better one.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Silkscreen&family=Space+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one 1120px column on a dark HUD. Hero, then achievements, quest grid with a quest log below it, co-op offers, character sheet, press start. */
+:root{
+  color-scheme:dark;
+  --void:#0e0f13;--panel:#16181f;--panel-raised:#1e2029;--line:#2c2f3a;
+  --ink:#ecedef;--ink-muted:#a9abb3;--ink-dim:#8b8e99;
+  --xp:#c6ff3d;--on-xp:#0e0f13;--xp-soft:#232e0b;
+  --mana:#7b61ff;--mana-text:#a898ff;--mana-soft:#241e45;
+  --gold:#ffc24b;--gold-soft:#3a2c0c;--hp:#ff6b81;
+  --font-display:"Space Grotesk",ui-sans-serif,system-ui,sans-serif;
+  --font-pixel:Silkscreen,"Courier New",ui-monospace,monospace;
+  --font-mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--s16:64px;
+  --r-px:2px;--r-sm:4px;--r-md:8px;
+  --gutter:16px;
+}
+@media (min-width:720px){:root{--gutter:32px}}
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{background:var(--void);color:var(--ink);font-family:var(--font-display);font-size:17px;line-height:28px;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+::selection{background:var(--xp);color:var(--on-xp)}
+:focus-visible{outline:2px solid var(--xp);outline-offset:2px}
+.wrap{max-width:1120px;margin-inline:auto;padding-inline:var(--gutter)}
+.label{font-family:var(--font-pixel);font-size:12px;line-height:16px;letter-spacing:.04em;text-transform:lowercase}
+.mono{font-family:var(--font-mono)}
+section{padding-block:var(--s12)}
+@media (min-width:720px){section{padding-block:var(--s16)}}
+.sec-head{display:grid;gap:var(--s2);margin-bottom:var(--s8);max-width:640px}
+.sec-head .label{color:var(--xp)}
+.sec-head h2{font-size:40px;line-height:44px;font-weight:700;letter-spacing:-.015em;margin:0;text-wrap:balance}
+.sec-head p{margin:0;color:var(--ink-muted)}
+@media (max-width:600px){.sec-head h2{font-size:32px;line-height:36px}}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--void);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);height:64px}
+.brand{display:flex;align-items:center;gap:var(--s3);text-decoration:none}
+.brand svg{width:39px;height:27px;display:block}
+.brand span{font-weight:600;font-size:16px}
+.nav ul{display:flex;gap:var(--s6);list-style:none;margin:0;padding:0}
+.nav ul a{text-decoration:none;color:var(--ink-muted)}
+.nav ul a:hover{color:var(--xp)}
+@media (max-width:760px){.nav ul{display:none}.brand span{display:none}}
+
+/* buttons */
+.btn{font-family:var(--font-pixel);font-size:13px;line-height:16px;letter-spacing:.04em;text-transform:lowercase;padding:12px 18px;border-radius:var(--r-sm);border:2px solid transparent;cursor:pointer;display:inline-flex;gap:var(--s2);align-items:center;text-decoration:none;transition:transform 80ms steps(2),box-shadow 80ms steps(2),border-color 80ms steps(2),color 80ms steps(2);background:none;color:var(--ink)}
+.btn:hover{transform:translate(-2px,-2px)}
+.btn--primary{background:var(--xp);color:var(--on-xp)}
+.btn--primary:hover{box-shadow:4px 4px 0 0 var(--mana)}
+.btn--secondary{border-color:var(--ink-dim)}
+.btn--secondary:hover{border-color:var(--xp);color:var(--xp)}
+.btn--ghost{color:var(--ink-muted);padding-inline:2px}
+.btn--ghost:hover{color:var(--xp);transform:none}
+.nav .btn{padding:9px 14px}
+
+/* hero */
+.hero{padding-block:var(--s12) var(--s8)}
+@media (min-width:720px){.hero{padding-block:88px var(--s12)}}
+.hero__grid{display:grid;gap:var(--s12);grid-template-columns:minmax(0,1fr)}
+@media (min-width:960px){.hero__grid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);align-items:end}}
+.ready{color:var(--xp);display:flex;gap:var(--s2);align-items:center}
+.ready i{width:8px;height:8px;background:var(--xp);display:inline-block}
+.hero h1{font-size:clamp(48px,9vw,96px);line-height:.95;font-weight:700;letter-spacing:-.03em;margin:var(--s4) 0 var(--s6);text-wrap:balance}
+.tagline{font-size:22px;line-height:32px;color:var(--ink);margin:0 0 var(--s4);max-width:30ch}
+.cursor{display:inline-block;width:.55em;height:1em;background:var(--xp);vertical-align:-3px;margin-left:4px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.intro{color:var(--ink-muted);max-width:56ch;margin:0 0 var(--s8)}
+.cta{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center}
+
+.sheet{background:var(--panel);border:2px solid var(--line);border-radius:var(--r-md);padding:var(--s6);display:grid;gap:var(--s6)}
+.sheet__top{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s4)}
+.sheet__top .label{color:var(--ink-dim)}
+.sheet__class{font-size:20px;line-height:26px;font-weight:600;margin-top:var(--s1)}
+.xp{display:grid;gap:var(--s2)}
+.xp__head{display:flex;justify-content:space-between;gap:var(--s2);color:var(--ink-muted)}
+.xp__head b{color:var(--xp);font-weight:400}
+.xp__track{display:grid;grid-template-columns:repeat(20,1fr);gap:var(--s1)}
+.xp__seg{height:12px;background:var(--line);border-radius:var(--r-px)}
+.xp__seg.on{background:var(--xp)}
+.loadout{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.tag{font-family:var(--font-mono);font-size:12px;line-height:16px;padding:5px 8px;border:1px solid var(--line);border-radius:var(--r-px);color:var(--ink-muted)}
+
+/* achievements */
+.achs{display:grid;gap:var(--s4);grid-template-columns:minmax(0,1fr)}@media (min-width:720px){.achs{grid-template-columns:repeat(2,minmax(0,1fr))}.achs .ach--legendary{grid-column:1/-1}}
+.ach{display:flex;gap:var(--s4);align-items:center;background:var(--panel);border:2px solid var(--mana);border-radius:var(--r-sm);padding:var(--s4) var(--s6);transition:transform 80ms steps(2),box-shadow 80ms steps(2)}
+.ach:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 0 var(--mana)}
+.ach__stat{font-family:var(--font-mono);font-size:36px;line-height:40px;font-weight:500;color:var(--xp);font-variant-numeric:tabular-nums;min-width:3.4ch}
+.ach__eyebrow{color:var(--mana-text)}
+.ach{align-items:flex-start}.ach__icon{width:36px;height:36px;flex:none;fill:var(--mana-text);margin-top:2px}.ach--legendary .ach__icon{fill:var(--gold)}.ach__name{font-size:20px;line-height:26px;font-weight:600;margin-top:4px}.ach__title{font-size:15px;line-height:22px;margin-top:4px;color:var(--ink-muted)}
+.ach--legendary{border-color:var(--gold);background:var(--gold-soft)}
+.ach--legendary .ach__stat,.ach--legendary .ach__eyebrow{color:var(--gold)}
+.ach--legendary:hover{box-shadow:4px 4px 0 0 var(--gold)}
+.ach.pop{animation:pop 400ms steps(4)}
+@keyframes pop{0%{transform:scale(.96)}50%{transform:scale(1.03)}100%{transform:none}}
+
+/* quests */
+.filters{display:flex;flex-wrap:wrap;gap:var(--s2);margin-bottom:var(--s6)}
+.filter{font-family:var(--font-pixel);font-size:12px;letter-spacing:.04em;text-transform:lowercase;padding:8px 12px;border-radius:var(--r-sm);border:1px solid var(--ink-dim);background:none;color:var(--ink-muted);cursor:pointer}
+.filter:hover{color:var(--ink);border-color:var(--ink)}
+.filter[aria-pressed="true"]{background:var(--xp);border-color:var(--xp);color:var(--on-xp)}
+.quests{display:grid;gap:var(--s6);grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr))}
+@media (min-width:960px){.quests{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.quest{background:var(--panel);border:2px solid var(--line);border-radius:var(--r-md);padding:var(--s6);display:flex;flex-direction:column;gap:var(--s4);cursor:pointer;text-align:left;color:inherit;font:inherit;transition:transform 80ms steps(2),box-shadow 80ms steps(2),border-color 80ms steps(2)}
+.quest:hover{transform:translate(-4px,-4px);box-shadow:4px 4px 0 0 var(--xp);border-color:var(--xp)}
+.quest[aria-current="true"]{border-color:var(--xp)}
+.quest__top{display:flex;justify-content:space-between;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.quest__meta{font-family:var(--font-mono);font-size:13px;color:var(--ink-dim)}
+.quest h3{font-size:32px;line-height:36px;font-weight:700;letter-spacing:-.015em;margin:0}
+.quest__role{color:var(--mana-text);font-size:14px;line-height:20px;margin-top:-8px}
+.quest__hook{color:var(--ink-muted);font-size:16px;line-height:25px;margin:0;flex:1}
+.quest__stats{display:flex;gap:var(--s6);flex-wrap:wrap;border-top:1px solid var(--line);padding-top:var(--s4)}
+.quest__stats b{display:block;font-family:var(--font-mono);font-weight:500;font-size:22px;line-height:28px;color:var(--xp);font-variant-numeric:tabular-nums}
+.quest__stats span{color:var(--ink-dim)}
+.quest__go{color:var(--ink-muted);font-family:var(--font-pixel);font-size:12px;letter-spacing:.04em}
+.quest:hover .quest__go{color:var(--xp)}
+.chip{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-pixel);font-size:11px;line-height:16px;letter-spacing:.04em;padding:4px 8px;border-radius:var(--r-px);text-transform:lowercase}
+.chip::before{content:"";width:6px;height:6px;background:currentColor}
+.chip--active{background:var(--xp-soft);color:var(--xp)}
+.chip--side{background:var(--mana-soft);color:var(--mana-text)}
+.chip--done{background:var(--panel-raised);color:var(--ink-muted)}
+
+/* quest log */
+.log{margin-top:var(--s8);border:2px solid var(--xp);border-radius:var(--r-md);background:var(--panel);overflow:hidden}
+.log__head{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);padding:var(--s4) var(--s6);background:var(--xp);color:var(--on-xp);flex-wrap:wrap}
+.log__body{padding:var(--s6);display:grid;gap:var(--s8)}
+@media (min-width:960px){.log__body{grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);padding:var(--s8)}}
+.log h3{font-size:40px;line-height:44px;font-weight:700;letter-spacing:-.015em;margin:0 0 var(--s2)}
+.log__summary{color:var(--ink-muted);margin:var(--s4) 0}
+.log__built{margin:0;padding:0;list-style:none;display:grid;gap:var(--s2)}
+.log__built li{display:grid;grid-template-columns:16px minmax(0,1fr);gap:var(--s2);font-size:15px;line-height:23px}
+.log__built li::before{content:"";width:8px;height:8px;background:var(--mana);margin-top:8px}
+.log__side{display:grid;gap:var(--s4);align-content:start}
+.patch{border:2px solid var(--line);border-radius:var(--r-md);overflow:hidden;background:var(--void)}
+.patch__row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:var(--s4);padding:var(--s4) var(--s6);border-top:1px solid var(--line)}
+.patch__row:first-child{border-top:0}
+.patch__row p{margin:0;font-size:16px;line-height:25px}
+.patch__row--bug .label{color:var(--hp)}
+.patch__row--cause .label{color:var(--gold)}
+.patch__row--fix .label{color:var(--mana-text)}
+.patch__row--result{background:var(--xp-soft)}
+.patch__row--result .label,.patch__row--result strong{color:var(--xp)}
+@media (max-width:560px){.patch__row{grid-template-columns:1fr;gap:var(--s1)}}
+
+/* co-op */
+.offers{display:grid;gap:var(--s4);grid-template-columns:minmax(0,1fr)}@media (min-width:720px){.offers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.offer{border:2px solid var(--line);border-radius:var(--r-md);padding:var(--s6);display:grid;gap:var(--s3);align-content:start;background:var(--panel)}
+.offer .label{color:var(--mana-text)}
+.offer h3{margin:0;font-size:24px;line-height:30px;font-weight:600}
+.offer p{margin:0;color:var(--ink-muted);font-size:16px;line-height:25px}
+.offer__proof{font-family:var(--font-mono);font-size:13px;line-height:20px;color:var(--ink-dim);border-top:1px solid var(--line);padding-top:var(--s3)}
+
+/* character */
+.char{display:grid;gap:var(--s8)}
+@media (min-width:960px){.char{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}}
+.bio p{margin:0 0 var(--s4);max-width:58ch}
+.bio p:first-child{font-size:20px;line-height:30px}
+.offscreen{margin-top:var(--s6);display:grid;gap:var(--s3)}
+.offscreen .label{color:var(--ink-dim)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:2px;background:var(--line);border:2px solid var(--line);border-radius:var(--r-md);overflow:hidden;align-self:start}
+.stat{background:var(--panel);padding:var(--s4) var(--s6);display:grid;gap:var(--s1)}
+.stat__k{color:var(--ink-dim)}
+.stat__v{font-family:var(--font-mono);font-size:28px;line-height:34px;font-weight:500;font-variant-numeric:tabular-nums}
+.stat__n{color:var(--ink-muted);font-size:13px;line-height:18px}
+.timeline{margin-top:var(--s6);display:grid;gap:0;border-left:2px solid var(--line);padding-left:var(--s4)}
+.timeline div{display:grid;grid-template-columns:96px minmax(0,1fr);gap:var(--s3);padding-block:var(--s2);font-size:15px;line-height:22px}
+.timeline .mono{color:var(--ink-dim);font-size:13px}
+
+/* press start */
+.start{border:2px solid var(--xp);border-radius:var(--r-md);padding:var(--s8) var(--s6);background:var(--panel);display:grid;gap:var(--s6)}
+@media (min-width:720px){.start{padding:var(--s12)}}
+.start h2{font-size:clamp(36px,6vw,56px);line-height:1;font-weight:700;letter-spacing:-.02em;margin:0}
+.start__lede{margin:0;max-width:52ch;font-size:20px;line-height:30px;color:var(--ink-muted)}
+.lead{display:grid;gap:var(--s4);max-width:560px}
+.lead__row{display:grid;gap:var(--s2)}
+.lead__row .label{color:var(--ink-muted)}
+.lead input,.lead textarea{font:inherit;font-size:16px;line-height:24px;color:var(--ink);background:var(--void);border:2px solid var(--ink-dim);border-radius:var(--r-sm);padding:10px 12px;width:100%;resize:vertical}
+.lead input::placeholder,.lead textarea::placeholder{color:var(--ink-dim)}
+.lead input:focus,.lead textarea:focus{outline:none;border-color:var(--xp)}
+.lead input[aria-invalid="true"]{border-color:var(--hp)}
+.lead__err{margin:0;color:var(--hp);font-size:14px}
+.lead__ok{margin:0;display:flex;gap:var(--s3);align-items:center;flex-wrap:wrap;color:var(--ink);background:var(--xp-soft);border:2px solid var(--xp);border-radius:var(--r-sm);padding:var(--s3) var(--s4)}
+.lead__ok .label{color:var(--xp)}
+.tab{font-family:var(--font-pixel);font-size:13px;letter-spacing:.04em;text-transform:lowercase;padding:10px 14px;border-radius:var(--r-sm);border:2px solid var(--ink-dim);background:none;color:var(--ink-muted);cursor:pointer}
+.tab[aria-selected="true"]{border-color:var(--xp);background:var(--xp);color:var(--on-xp)}
+.panel p{margin:0 0 var(--s4);max-width:58ch;color:var(--ink-muted)}
+.panel p strong{color:var(--ink);font-weight:500}
+.contact{display:flex;flex-wrap:wrap;gap:var(--s3);align-items:center}
+.email{font-family:var(--font-mono);font-size:16px;padding:11px 14px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--void);user-select:all;overflow-wrap:anywhere}
+
+footer{border-top:1px solid var(--line);padding-block:var(--s8)}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);flex-wrap:wrap;color:var(--ink-dim);font-size:14px}
+.hint{font-family:var(--font-mono);font-size:12px;color:var(--ink-dim)}
+
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;display:flex;gap:var(--s4);align-items:center;background:var(--gold-soft);border:2px solid var(--gold);border-radius:var(--r-sm);padding:var(--s3) var(--s4);box-shadow:4px 4px 0 0 var(--gold);max-width:calc(100% - 32px)}
+.toast b{font-family:var(--font-mono);font-weight:500;font-size:28px;color:var(--gold)}
+.toast .label{color:var(--gold)}
+.toast div div:last-child{font-size:14px;line-height:20px}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .btn:hover,.quest:hover,.ach:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Tyler Stambaugh, home">
+      <svg viewBox="0 0 104 72" aria-hidden="true"><rect width="104" height="72" rx="2" fill="#c6ff3d"/><g fill="#0e0f13"><rect x="8" y="16" width="8" height="8"/><rect x="16" y="16" width="8" height="8"/><rect x="24" y="16" width="8" height="8"/><rect x="32" y="16" width="8" height="8"/><rect x="40" y="16" width="8" height="8"/><rect x="24" y="24" width="8" height="8"/><rect x="24" y="32" width="8" height="8"/><rect x="24" y="40" width="8" height="8"/><rect x="24" y="48" width="8" height="8"/><rect x="64" y="16" width="8" height="8"/><rect x="72" y="16" width="8" height="8"/><rect x="80" y="16" width="8" height="8"/><rect x="88" y="16" width="8" height="8"/><rect x="56" y="24" width="8" height="8"/><rect x="64" y="32" width="8" height="8"/><rect x="72" y="32" width="8" height="8"/><rect x="80" y="32" width="8" height="8"/><rect x="88" y="40" width="8" height="8"/><rect x="56" y="48" width="8" height="8"/><rect x="64" y="48" width="8" height="8"/><rect x="72" y="48" width="8" height="8"/><rect x="80" y="48" width="8" height="8"/></g></svg>
+      <span>Tyler Stambaugh</span>
+    </a>
+    <ul>
+      <li><a href="#quests">Quests</a></li>
+      <li><a href="#co-op">Work with me</a></li>
+      <li><a href="#character">About</a></li>
+    </ul>
+    <a class="btn btn--primary" href="#start">&gt; press start</a>
+  </div>
+</nav>
+
+<main id="top">
+  <header class="hero">
+    <div class="wrap hero__grid">
+      <div>
+        <div class="ready label"><i aria-hidden="true"></i>player 1 ready</div>
+        <h1>Tyler Stambaugh</h1>
+        <p class="tagline">I learn the rules of your game. Then I build you a better one.<span class="cursor" aria-hidden="true"></span></p>
+        <p class="intro">Founder, product leader, and builder. I built a consumer platform from a whiteboard idea to 40+ brands. Now I build solutions for clients and teams who want products that move their business, not just check a box.</p>
+        <div class="cta">
+          <a class="btn btn--primary" href="#start">&gt; press start</a>
+          <a class="btn btn--secondary" href="#quests">see the quests</a>
+        </div>
+      </div>
+      <aside class="sheet" aria-label="Character summary">
+        <div class="sheet__top">
+          <div>
+            <div class="label">class</div>
+            <div class="sheet__class">Founder &middot; Product &middot; Builder</div>
+          </div>
+          <div class="label" style="color:var(--xp)">nyc</div>
+        </div>
+        <div class="xp" role="meter" aria-valuenow="17" aria-valuemin="0" aria-valuemax="20" aria-label="Level 17: seventeen years building since 2009">
+          <div class="xp__head"><span class="label">years in the game</span><b class="label">lvl 17</b></div>
+          <div class="xp__track" id="xp"></div>
+        </div>
+        <div>
+          <div class="label" style="color:var(--ink-dim);margin-bottom:8px">loadout</div>
+          <div class="loadout">
+            <span class="tag">python</span><span class="tag">django</span><span class="tag">react</span><span class="tag">javascript</span><span class="tag">postgres</span><span class="tag">aws</span><span class="tag">shopify</span><span class="tag">stripe</span>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </header>
+
+  <section aria-labelledby="ach-h" style="padding-top:0">
+    <div class="wrap">
+      <h2 id="ach-h" class="label" style="color:var(--ink-dim);margin:0 0 16px;font-weight:400">achievements unlocked</h2>
+      <div class="achs"><div class="ach ach--legendary"><svg class="ach__icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h8v1h2v3h-1v1h-1v1H8v1H7v1h2v2H3V9h2V8H4V7H2V6H1V5H0V2h2zM1 3v1h1V3zm9 0v1h1V3z"/></svg><div><div class="label ach__eyebrow">legendary · core belief</div><div class="ach__name">Business first</div><div class="ach__title">I start with the outcome the business needs. The technology follows.</div></div></div><div class="ach"><svg class="ach__icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h8v1h2v3h-1v1h-1v1H8v1H7v1h2v2H3V9h2V8H4V7H2V6H1V5H0V2h2zM1 3v1h1V3zm9 0v1h1V3z"/></svg><div><div class="label ach__eyebrow">rare · full stack</div><div class="ach__name">Front to back</div><div class="ach__title">Front end, back end, and hosting. I can do it all.</div></div></div><div class="ach"><svg class="ach__icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h8v1h2v3h-1v1h-1v1H8v1H7v1h2v2H3V9h2V8H4V7H2V6H1V5H0V2h2zM1 3v1h1V3zm9 0v1h1V3z"/></svg><div><div class="label ach__eyebrow">rare · platforms</div><div class="ach__name">Web and iOS apps</div><div class="ach__title">Shipped for consumer brands, a PT practice, and a finance creator.</div></div></div><div class="ach"><svg class="ach__icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h8v1h2v3h-1v1h-1v1H8v1H7v1h2v2H3V9h2V8H4V7H2V6H1V5H0V2h2zM1 3v1h1V3zm9 0v1h1V3z"/></svg><div><div class="label ach__eyebrow">rare · data</div><div class="ach__name">Data you can trust</div><div class="ach__title">Pipelines and quality checks behind tools people make decisions with.</div></div></div><div class="ach"><svg class="ach__icon" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1h8v1h2v3h-1v1h-1v1H8v1H7v1h2v2H3V9h2V8H4V7H2V6H1V5H0V2h2zM1 3v1h1V3zm9 0v1h1V3z"/></svg><div><div class="label ach__eyebrow">rare · go-to-market</div><div class="ach__name">Sold what I specced</div><div class="ach__title">Ran sales to CMOs myself and fed what I heard into the roadmap.</div></div></div></div>
+    </div>
+  </section>
+
+  <section id="quests" aria-labelledby="quests-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">quest log</div>
+        <h2 id="quests-h">Things I've built</h2>
+        <p>Pick a quest to read its patch notes: the bug, the root cause, the fix, and the result.</p>
+      </div>
+      <div class="filters" role="group" aria-label="Filter quests">
+        <button class="filter" aria-pressed="true" data-f="all">all</button>
+        <button class="filter" aria-pressed="false" data-f="main">main quest</button>
+        <button class="filter" aria-pressed="false" data-f="coop">client co-op</button>
+        <button class="filter" aria-pressed="false" data-f="active">in progress</button>
+      </div>
+      <div class="quests" id="quest-grid"></div>
+      <article class="log" id="log" aria-live="polite"></article>
+    </div>
+  </section>
+
+  <section id="co-op" aria-labelledby="coop-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">co-op mode</div>
+        <h2 id="coop-h">Bring me in</h2>
+        <p>I take on freelance and fractional work for founders and small teams. You get a product lead who can also ship the code.</p>
+      </div>
+      <div class="offers">
+        <div class="offer">
+          <div class="label">fractional product</div>
+          <h3>Find the real problem</h3>
+          <p>Discovery, positioning, roadmap, and pricing for a product that isn't landing. I talk to your customers and tell you what's actually in the way.</p>
+          <div class="offer__proof">proof: MAGNETIQ churn diagnosis, 80% demo conversion</div>
+        </div>
+        <div class="offer">
+          <div class="label">build</div>
+          <h3>Ship the tool</h3>
+          <p>Web apps and data products, from spec to production. I scope it, design it, build it, and stick around until people are using it.</p>
+          <div class="offer__proof">proof: R3 Endurance app, Steady Investor Labs</div>
+        </div>
+        <div class="offer">
+          <div class="label">website build</div>
+          <h3>Websites that work for you</h3>
+          <p>A site that says what you do in five seconds and makes it easy to reach you. Design, build, SEO basics, contact flow, and cheaper hosting.</p>
+          <div class="offer__proof">proof: Carlin Systems, 25 years of tech debt cleared</div>
+        </div>
+        <div class="offer">
+          <div class="label">ai enablement</div>
+          <h3>Put AI to work</h3>
+          <p>I help you find where AI actually earns its keep in your business, then set it up in plain language. No jargon and no black boxes, so your team can run it long after I walk away.</p>
+          <div class="offer__proof">built for: teams that want results, not a science project</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="character" aria-labelledby="char-h">
+    <div class="wrap">
+      <div class="sec-head">
+        <div class="label">character sheet</div>
+        <h2 id="char-h">About me</h2>
+      </div>
+      <div class="char">
+        <div class="bio">
+          <p>I've had to run product end to end, including every function around it: spec it, sell it, onboard it, support it, and in the end, code it.</p>
+          <p>Before founding MAGNETIQ, I spent eight years at Accenture as the bridge between business leaders and technical teams on large corporate technology programs. Before that, I worked at JPMorgan. I'm a former CFA charterholder, so I read a P&amp;L as easily as a pull request.</p>
+          <p>I think from first principles, and I'm comfortable being the one who asks why we're building something after everyone else has moved on to how.</p>
+          <div class="offscreen">
+            <div class="label">off-screen</div>
+            <p style="font-size:16px;line-height:25px;color:var(--ink-muted)">Lifelong gamer, raising my kids to be healthy gamers too. Currently grinding in the gym. Bad at golf, but I keep playing anyway.</p>
+          </div>
+          <div class="timeline" aria-label="Career timeline">
+            <div><span class="mono">2009&ndash;14</span><span>JPMorgan Chase</span></div>
+            <div><span class="mono">2014&ndash;22</span><span>Senior Manager, Accenture</span></div>
+            <div><span class="mono">2022&ndash;26</span><span>Co-founder and CPO, MAGNETIQ</span></div>
+            <div><span class="mono">now</span><span>Freelance builds and product management</span></div>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><span class="label stat__k">str &middot; business</span><span class="stat__v">CFA</span><span class="stat__n">Former charterholder; finance degree</span></div>
+          <div class="stat"><span class="label stat__k">int &middot; systems</span><span class="stat__v">8 yrs</span><span class="stat__n">Enterprise delivery at Accenture</span></div>
+          <div class="stat"><span class="label stat__k">dex &middot; build</span><span class="stat__v">Dev</span><span class="stat__n">Front end, back end, infrastructure</span></div>
+          <div class="stat"><span class="label stat__k">cha &middot; sell</span><span class="stat__v">$10M+</span><span class="stat__n">Sold in technology solutions</span></div>
+          <div class="stat"><span class="label stat__k">wis &middot; lead</span><span class="stat__v">80+</span><span class="stat__n">People managed on a single engagement</span></div>
+          <div class="stat"><span class="label stat__k">con &middot; grind</span><span class="stat__v">4 yrs</span><span class="stat__n">Running a startup, whiteboard to wind-down</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="start" aria-labelledby="start-h">
+    <div class="wrap">
+      <div class="start">
+        <div class="label" style="color:var(--xp)">press start</div>
+        <h2 id="start-h">Let's play.</h2>
+        <p class="start__lede">Want to hear more about what I can bring to your team, or have a game you need a better version of? Drop your email and I'll reach out.</p>
+        <form class="lead" id="lead" novalidate>
+          <div class="lead__row">
+            <label class="label" for="lead-email">your email</label>
+            <input id="lead-email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+          </div>
+          <div class="lead__row">
+            <label class="label" for="lead-note">anything i should know? <span style="color:var(--ink-dim)">(optional)</span></label>
+            <textarea id="lead-note" name="note" rows="3" placeholder="A role you're hiring for, a tool you need built, or something else entirely"></textarea>
+          </div>
+          <p class="lead__err" id="lead-err" role="alert" hidden>Enter a valid email so I can reach you.</p>
+          <div><button class="btn btn--primary" type="submit">&gt; press start</button></div>
+          <p class="lead__ok" id="lead-ok" role="status" hidden><span class="label">player 2 has joined</span> Thanks. I'll be in touch soon.</p>
+        </form>
+        <div class="contact">
+          <span class="label" style="color:var(--ink-dim)">or reach me directly</span>
+          <span class="email" id="email">stambaugh.tyler@gmail.com</span>
+          <button class="btn btn--secondary" id="copy">copy email</button>
+          <a class="btn btn--secondary" href="#start" title="Add your LinkedIn URL">linkedin</a>
+          <a class="btn btn--secondary" href="#start" title="Add your resume link">resume</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 Tyler Stambaugh. Designed and built by me.</span>
+    <span class="hint">&uarr;&uarr;&darr;&darr;&larr;&rarr;&larr;&rarr; b a</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" hidden>
+  <b>99</b>
+  <div><div class="label">secret achievement</div><div>You know the code. We should talk.</div></div>
+</div>
+
+<script>
+const QUESTS = [
+  {
+    id: "magnetiq", name: "MAGNETIQ", type: "main", status: "done", chip: "main quest · completed",
+    dates: "2022–2026", role: "Co-founder and Chief Product Officer",
+    hook: "A community and loyalty platform where consumer brands gave their best customers a place to be rewarded, recognized, and brought along on the brand's journey.",
+    stats: [["40+", "brands"], ["1000s", "members"], ["~$100K", "transacted"]],
+    summary: "I designed MAGNETIQ from a blank whiteboard and owned it for four years: roadmap, specs, pricing, sales, support, and in the final year, the codebase itself. It was a B2B2C product, so every decision had to work for the brand paying for it and the fan using it.",
+    built: [
+      "Branded member communities with gated content and perks",
+      "Member-only discounts and products as a Shopify sales channel app",
+      "Mobile web UGC uploads, stored and licensed back to brands",
+      "Stripe payments and an enterprise-grade admin for brands",
+      "A guided launch program: playbooks, templates, and a concierge setup"
+    ],
+    loadout: ["python", "django", "react", "postgres", "aws", "shopify app", "stripe"],
+    patch: [
+      ["bug", "Consumer brands had no direct channel to engage their best customers and build emotional loyalty."],
+      ["cause", "Community was the answer, but brands had no place to host their top customers and no model for running one. It was a capability gap."],
+      ["fix", "MAGNETIQ filled that gap, giving brands one branded home with the tools to recognize, reward, and engage their best customers."],
+      ["result", "<strong>Higher customer retention</strong>, <strong>stronger brand affinity</strong>, and valuable <strong>zero-party data</strong> brands used for future product and marketing decisions."]
+    ]
+  },
+  {
+    id: "steady", name: "Steady Investor Labs", type: "coop", status: "active", chip: "client co-op · active",
+    dates: "now", role: "Product and data build for a finance creator",
+    hook: "Interactive tools for a personal finance creator's audience, starting with an engine that lets viewers run his famous backtests themselves.",
+    stats: [["30 yrs", "of daily prices"], ["S&P 500", "history"]],
+    summary: "The Steady Investor makes videos that backtest simple strategies against the S&P 500, like buying the second-largest company every year for 30 years. Viewers love them and want to try their own. Labs turns the series into tools they can use.",
+    built: [
+      "A data pipeline for 30 years of daily prices and historical S&P 500 membership",
+      "Market caps rebuilt from share counts in SEC filings",
+      "Data quality checks so every result can be trusted",
+      "An experiment builder that mirrors the videos",
+      "Next up: retirement, college, and life-decision calculators"
+    ],
+    loadout: ["python", "sec filings", "data quality", "web app"],
+    patch: [
+      ["bug", "The audience watches the experiments but can't run their own, so the learning stops when the video ends."],
+      ["cause", "The hard part isn't the interface. It's trustworthy historical data: who was in the index, and how big each company really was, every single day."],
+      ["fix", "Build the data foundation first, with quality checks, then put a simple experiment builder on top."],
+      ["result", "In progress. The data layer comes first; the experiment tool follows."]
+    ]
+  },
+  {
+    id: "r3", name: "R3 Endurance", type: "coop", status: "done", chip: "client co-op · shipped",
+    dates: "client build", role: "White-label app for a triathlon coach and physical therapist",
+    hook: "A white-label calendar app that turns physical therapy visits into daily plans patients can follow, with accountability built in.",
+    stats: [],
+    summary: "After each session, the therapist used to send home exercises by email or spreadsheet. Patients forgot, and the therapist couldn't tell who was keeping up until the next visit.",
+    built: [
+      "Calendar-based exercise assignments from the therapist",
+      "Each exercise with video, description, sets, and reps",
+      "Mark-as-done, so the therapist sees adherence",
+      "Direct messaging between patient and therapist",
+      "Reminders when today's exercises aren't done yet"
+    ],
+    loadout: ["white-label app", "scheduling", "notifications", "messaging"],
+    patch: [
+      ["bug", "Home exercise plans lived in emails and spreadsheets. Patients skipped them and recovered slower."],
+      ["cause", "Patients didn't lack information. They lacked a loop: a daily cue, a way to check it off, and someone who'd notice."],
+      ["fix", "A white-label app with scheduled workouts, video guides, completion tracking, nudges, and messaging."],
+      ["result", "Shipped to the practice. Patients get one place for their plan, and the therapist sees who's on track before the next visit."]
+    ]
+  },
+  {
+    id: "carlin", name: "Carlin Systems", type: "coop", status: "done", chip: "side quest · completed",
+    dates: "client build", role: "Website rebuild for a 30-year-old parts broker",
+    hook: "An electrical and computer parts broker whose website hadn't seen a meaningful update in about 25 years.",
+    stats: [["$600", "saved per year"], ["25 yrs", "of tech debt"]],
+    summary: "Carlin Systems has been in business for over 30 years. Their site still worked, but it buried what they do and made buyers dig for a phone number.",
+    built: [
+      "A full redesign that kept every existing function",
+      "The value proposition moved to the top of the page",
+      "A contact form, so buyers don't have to hunt for a phone number",
+      "Simpler navigation and SEO foundations",
+      "Re-hosted on a cheaper, modern provider"
+    ],
+    loadout: ["redesign", "seo", "contact flow", "hosting"],
+    patch: [
+      ["bug", "A site from the early 2000s that hid the value proposition and made contact hard."],
+      ["cause", "It was built as a catalog. Buyers needed it to work as a sales channel."],
+      ["fix", "Redesigned around the buyer's first question, added a contact form and SEO basics, and moved hosting."],
+      ["result", "A modern front door and <strong>~$600 a year</strong> saved on hosting."]
+    ]
+  }
+];
+
+const LABELS = { bug: "bug", cause: "root cause", fix: "patch", result: "result" };
+const grid = document.getElementById("quest-grid");
+const log = document.getElementById("log");
+let current = "magnetiq";
+let filter = "all";
+
+function chipClass(q) { return q.status === "active" ? "chip--active" : q.type === "main" ? "chip--done" : "chip--side"; }
+
+function renderGrid() {
+  grid.innerHTML = "";
+  QUESTS.filter(q => filter === "all" || (filter === "active" ? q.status === "active" : q.type === filter)).forEach(q => {
+    const b = document.createElement("button");
+    b.className = "quest";
+    b.setAttribute("aria-current", q.id === current ? "true" : "false");
+    b.setAttribute("aria-controls", "log");
+    b.innerHTML = `
+      <div class="quest__top"><span class="chip ${chipClass(q)}">${q.chip}</span><span class="quest__meta">${q.dates}</span></div>
+      <h3>${q.name}</h3>
+      <div class="quest__role">${q.role}</div>
+      <p class="quest__hook">${q.hook}</p>
+      ${q.stats.length ? `<div class="quest__stats">${q.stats.map(([v, k]) => `<div><b>${v}</b><span class="label">${k}</span></div>`).join("")}</div>` : ""}
+      <span class="quest__go">read patch notes &rarr;</span>`;
+    b.addEventListener("click", () => { current = q.id; renderGrid(); renderLog(); log.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); });
+    grid.appendChild(b);
+  });
+}
+
+function renderLog() {
+  const q = QUESTS.find(x => x.id === current);
+  log.innerHTML = `
+    <div class="log__head"><span class="label">quest log &middot; ${q.chip}</span><span class="label">${q.dates}</span></div>
+    <div class="log__body">
+      <div>
+        <h3>${q.name}</h3>
+        <div class="quest__role">${q.role}</div>
+        <p class="log__summary">${q.summary}</p>
+        <div class="label" style="color:var(--ink-dim);margin-bottom:12px">what i built</div>
+        <ul class="log__built">${q.built.map(x => `<li>${x}</li>`).join("")}</ul>
+      </div>
+      <div class="log__side">
+        <div class="label" style="color:var(--ink-dim)">patch notes</div>
+        <div class="patch">${q.patch.map(([k, t]) => `<div class="patch__row patch__row--${k}"><span class="label">${LABELS[k]}</span><p>${t}</p></div>`).join("")}</div>
+        <div class="loadout">${q.loadout.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+      </div>
+    </div>`;
+}
+
+document.querySelectorAll(".filter").forEach(btn => btn.addEventListener("click", () => {
+  filter = btn.dataset.f;
+  document.querySelectorAll(".filter").forEach(b => b.setAttribute("aria-pressed", b === btn ? "true" : "false"));
+  renderGrid();
+}));
+
+/* XP bar: 17 of 20 cells, filled once in steps */
+const xp = document.getElementById("xp");
+const LEVEL = 17;
+for (let i = 0; i < 20; i++) { const s = document.createElement("span"); s.className = "xp__seg on"; if (i >= LEVEL) s.className = "xp__seg"; xp.appendChild(s); }
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const segs = [...xp.children].slice(0, LEVEL);
+  segs.forEach(s => s.classList.remove("on"));
+  segs.forEach((s, i) => setTimeout(() => s.classList.add("on"), 300 + i * 40));
+}
+
+/* lead form. NOT CONNECTED YET: wire to a form service (Formspree, Netlify Forms, etc.) when the site is deployed. */
+const lead = document.getElementById("lead"), email = document.getElementById("lead-email"), err = document.getElementById("lead-err");
+email.addEventListener("input", () => { err.hidden = true; email.removeAttribute("aria-invalid"); });
+lead.addEventListener("submit", e => {
+  e.preventDefault();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) { err.hidden = false; email.setAttribute("aria-invalid", "true"); email.focus(); return; }
+  document.getElementById("lead-ok").hidden = false;
+  lead.querySelector("button[type=submit]").hidden = true;
+});
+
+/* copy email */
+const copyBtn = document.getElementById("copy");
+copyBtn.addEventListener("click", () => {
+  const text = document.getElementById("email").textContent;
+  const done = () => { copyBtn.textContent = "copied"; setTimeout(() => copyBtn.textContent = "copy email", 1600); };
+  const fallback = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById("email")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); copyBtn.textContent = "press ⌘c"; setTimeout(() => copyBtn.textContent = "copy email", 2000); };
+  try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+});
+
+/* konami code */
+const CODE = ["ArrowUp","ArrowUp","ArrowDown","ArrowDown","ArrowLeft","ArrowRight","ArrowLeft","ArrowRight","b","a"];
+let pos = 0;
+const toast = document.getElementById("toast");
+addEventListener("keydown", e => {
+  const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  pos = k === CODE[pos] ? pos + 1 : (k === CODE[0] ? 1 : 0);
+  if (pos === CODE.length) {
+    pos = 0; toast.hidden = false;
+    document.querySelectorAll(".ach").forEach(a => { a.classList.remove("pop"); void a.offsetWidth; a.classList.add("pop"); });
+    setTimeout(() => toast.hidden = true, 4000);
+  }
+});
+
+renderGrid();
+renderLog();
+</script>
+</body>
+</html>
